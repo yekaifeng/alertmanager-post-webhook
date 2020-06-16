@@ -242,8 +242,6 @@ func (hook *WebHook) processAlerts() {
 				//	id, alertStatus, base64.StdEncoding.EncodeToString([]byte(alertname))))
 
 				//create mailbody and mailmessage
-				mailbody = zabbix.MailBody{}
-				mailmessage = zabbix.MailMessage{}
 				mailbody = zabbix.MailBody{1,
 					"" +
 						"主题：" + subject + "\n" +
