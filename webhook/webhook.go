@@ -246,7 +246,7 @@ func (hook *WebHook) processAlerts() {
 					"" +
 						"主题：" + subject + "\n" +
 						"等级：" + severity + "\n" +
-						"集群名：" + severity + "\n" +
+						"集群名：" + cluster + "\n" +
 						"告警状态：" + a.Status + "\n" +
 						"时间：" + alertStartTime + "\n"}
 
