@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"crypto/tls"
 	"time"
 	"strconv"
 	"bytes"
@@ -21,15 +22,27 @@ type Metric struct {
 	Clock int64  `json:"clock"`
 }
 
+type MailBody struct {
+	// 1-"text/plain",2-"text/html"
+	contentType      int    `json:"contentType"`
+	contentBody      string `json:"contentBody"`
+}
+
+type MailMessage struct {
+	From             string `json:"from"`
+	To               string `json:"to"`
+	Cc               string `json:"cc"`
+	Bcc              string `json:"bcc"`
+	Subject          string `json:"subject"`
+	Body             MailBody `json:"body"`
+	Attach           string `json:"attach"`
+}
+
 type AlertMetric struct {
-	Alert_level      string `json:"ALERT_LEVEL"`
-	Alert_start_time string `json:"ALERT_START_TIME"`
-	Alert_status     string `json:"ALERT_STATUS"`
-	Cur_moni_value   string `json:"CUR_MONI_VALUE"`
-	Device_ip        string `json:"DEVICE_IP"`
-	Id               string `json:"ID"`
-	Moni_object      string `json:"MONI_OBJECT"`
-	Subject          string `json:"SUBJECT"`
+	Time             string `json:"tm"`
+	Event            int    `json:"evt"`
+	AlertType        int    `json:"type"`
+	Message          MailMessage `json:"msg"`
 }
 
 // Metric class constructor.
@@ -43,16 +56,11 @@ func NewMetric(host, key, value string, clock ...int64) *Metric {
 }
 
 // AlertMetric class constructor.
-func NewAlertMetric(alert_level, alert_start_time, device_ip, moni_object, subject,
-	id, alert_status, cur_moni_value string) *AlertMetric {
-	m := &AlertMetric{Alert_level: alert_level,
-		              Alert_start_time: alert_start_time,
-	                  Alert_status: alert_status,
-	                  Cur_moni_value: cur_moni_value,
-	                  Device_ip: device_ip,
-	                  Id: id,
-	                  Moni_object: moni_object,
-	                  Subject: subject}
+func NewAlertMetric(time string, event int, alerttype int, msg MailMessage) *AlertMetric {
+	m := &AlertMetric{Time: time,
+		              Event: event,
+	                  AlertType: alerttype,
+	                  Message: msg}
 	return m
 }
 
@@ -224,9 +232,13 @@ func (s *Sender) AlertSend(packet *AlertPacket, subpath string) (res []byte, err
 		return
 	}
 
-	// New http client for Post
-	client := &http.Client{}
-	url := "http://" + iaddr.IP.String() + ":" + strconv.Itoa(iaddr.Port) + subpath
+	// Set https trasport ignore certificate verification
+	tp := &http.Transport{
+		TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},
+	}
+	// New https client for Post
+	client := &http.Client{Transport: tp}
+	url := "https://" + iaddr.IP.String() + ":" + strconv.Itoa(iaddr.Port) + subpath
 	reqest, err := http.NewRequest("POST", url, bytes.NewReader(dataPacket))
 	if err != nil {
 		fmt.Println("Fatal error ", err.Error())

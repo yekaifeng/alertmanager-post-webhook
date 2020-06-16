@@ -6,7 +6,7 @@ queueCapacity: 500
 # Hostname of your zabbix server
 zabbixServerHost: 172.26.7.172
 # Trapper port of your zabbix server
-zabbixServerPort: 10070
+zabbixServerPort: 443
 # Look in this annotation for a zabbix host to send alerts to, if not present and no zabbixHostDefault is defined then alert will be ignored
 zabbixHostAnnotation: portal.openshift.net.cn
 # Default host to send alerts to
@@ -14,6 +14,10 @@ zabbixHostDefault: portal.openshift.net.cn
 # Items key prefix, keys will be zabbixKeyPrefix.alertname
 zabbixKeyPrefix: prometheus
 # url subpath to to zabbix
-zabbixSubpath: /PAAS
+zabbixSubpath: /smtp
 # portal ip address of ocp
-ocpPortalAddress: 10.33.8.101
+ocpPortalAddress: 10.2.42.101
+# email from field
+emailFrom: email@from.com
+# email to field
+emailTo: email@to.com

@@ -13,6 +13,7 @@ Send a POST request::
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 import urllib
+import ssl
 
 
 class S(BaseHTTPRequestHandler):
@@ -39,7 +40,12 @@ class S(BaseHTTPRequestHandler):
 def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    print 'Starting httpd...'
+    # openssl req -x509 -newkey rsa:2048 -keyout ssl.key -out cert.crt -days 3650
+    if port == 443:
+        httpd.socket = ssl.wrap_socket(httpd.socket,
+                                       keyfile="ssl.key",
+                                       certfile="cert.crt", server_side=True)
+    print 'Starting httpd... Enter PEM pass phrase: redhat'
     httpd.serve_forever()
 
 if __name__ == "__main__":

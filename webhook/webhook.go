@@ -1,7 +1,6 @@
 package webhook
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -33,6 +32,8 @@ type WebHookConfig struct {
 	ZabbixKeyPrefix      string `yaml:"zabbixKeyPrefix"`
 	zabbixSubpath        string `yaml:"zabbixSubpath"`
 	OcpPortalAddress     string `yaml:"ocpPortalAddress"`
+	EmailFrom            string `yaml:"emailFrom"`
+	EmailTo              string `yaml:"emailTo"`
 }
 
 type HookRequest struct {
@@ -80,8 +81,10 @@ func ConfigFromFile(filename string) (cfg *WebHookConfig, err error) {
 		ZabbixHostAnnotation: "zabbix_host",
 		ZabbixKeyPrefix:      "prometheus",
 		ZabbixHostDefault:    "",
-		zabbixSubpath:        "/PAAS",
+		zabbixSubpath:        "/smtp",
 		OcpPortalAddress:     "",
+		EmailFrom:            "",
+		EmailTo:              "",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -165,6 +168,8 @@ func (hook *WebHook) processAlerts() {
 
 	// While there are alerts in the queue, batch them and send them over to Zabbix
 	var metrics []*zabbix.AlertMetric
+	var mailbody zabbix.MailBody
+	var mailmessage zabbix.MailMessage
 	for {
 		select {
 		case a := <-hook.channel:
@@ -206,7 +211,7 @@ func (hook *WebHook) processAlerts() {
 				t, err := time.Parse(time.RFC3339, a.StartsAt)
 
 				if err == nil {
-					alertStartTime = fmt.Sprintf("%d%02d%02d%02d%02d%02d",
+					alertStartTime = fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
 						t.Year(), t.Month(), t.Day(),
 						t.Hour(), t.Minute(), t.Second())
 					//Use alert start time as alert id
@@ -232,9 +237,32 @@ func (hook *WebHook) processAlerts() {
 					alertLevel, alertStartTime, alertStatus, alertname, deviceIp, id, cluster, subject)
 
 				//base64 encoding for subject and alertname
-				metrics = append(metrics, zabbix.NewAlertMetric(alertLevel, alertStartTime, deviceIp, cluster,
-					base64.StdEncoding.EncodeToString([]byte(subject)),
-					id, alertStatus, base64.StdEncoding.EncodeToString([]byte(alertname))))
+				//metrics = append(metrics, zabbix.NewAlertMetric(alertLevel, alertStartTime, deviceIp, cluster,
+				//	base64.StdEncoding.EncodeToString([]byte(subject)),
+				//	id, alertStatus, base64.StdEncoding.EncodeToString([]byte(alertname))))
+
+				//create mailbody and mailmessage
+				mailbody = zabbix.MailBody{}
+				mailmessage = zabbix.MailMessage{}
+				mailbody = zabbix.MailBody{1,
+					"" +
+						"主题：" + subject + "\n" +
+						"等级：" + severity + "\n" +
+						"集群名：" + severity + "\n" +
+						"告警状态：" + a.Status + "\n" +
+						"时间：" + alertStartTime + "\n"}
+
+				mailmessage = zabbix.MailMessage{
+					hook.config.EmailFrom,
+					hook.config.EmailTo,
+					"",
+					"",
+					subject,
+					mailbody,
+					"",
+				}
+				//insert alertmetrics into slice
+				metrics = append(metrics, zabbix.NewAlertMetric(alertStartTime, 1, 1, mailmessage))
 				log.Infof("metrics: %v", metrics)
 			}
 		default:
