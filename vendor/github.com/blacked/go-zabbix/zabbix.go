@@ -24,8 +24,8 @@ type Metric struct {
 
 type MailBody struct {
 	// 1-"text/plain",2-"text/html"
-	contentType      int    `json:"contentType"`
-	contentBody      string `json:"contentBody"`
+	ContentType      int    `json:"contentType"`
+	ContentBody      string `json:"contentBody"`
 }
 
 type MailMessage struct {
