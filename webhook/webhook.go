@@ -244,11 +244,11 @@ func (hook *WebHook) processAlerts() {
 				//create mailbody and mailmessage
 				mailbody = zabbix.MailBody{1,
 					"" +
-						"主题：" + subject + "\n" +
-						"等级：" + severity + "\n" +
-						"集群名：" + cluster + "\n" +
-						"告警状态：" + a.Status + "\n" +
-						"时间：" + alertStartTime + "\n"}
+						"Subject：" + subject + "\n" +
+						"Level：" + severity + "\n" +
+						"ClusterName：" + cluster + "\n" +
+						"Status：" + a.Status + "\n" +
+						"Time：" + alertStartTime + "\n"}
 
 				mailmessage = zabbix.MailMessage{
 					hook.config.EmailFrom,
