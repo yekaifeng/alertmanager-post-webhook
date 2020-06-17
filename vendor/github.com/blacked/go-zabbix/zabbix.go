@@ -258,3 +258,41 @@ func (s *Sender) AlertSend(packet *AlertPacket, subpath string) (res []byte, err
 
 	return
 }
+
+// Method Sender class, send packet to zabbix.
+func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string) (res []byte, err error) {
+
+	dataPacket, _ := json.Marshal(metric)
+
+	// Get ip and port to zabbix host
+	iaddr, err := s.getTCPAddr()
+	if err != nil {
+		return
+	}
+
+	// Set https trasport ignore certificate verification
+	tp := &http.Transport{
+		TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},
+	}
+	// New https client for Post
+	client := &http.Client{Transport: tp}
+	url := "https://" + iaddr.IP.String() + ":" + strconv.Itoa(iaddr.Port) + subpath
+	reqest, err := http.NewRequest("POST", url, bytes.NewReader(dataPacket))
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+	}
+	//Set request header
+	reqest.Header.Set("Content-Type", "application/json")
+
+	//Send request
+	resp, err := client.Do(reqest)
+	defer resp.Body.Close()
+
+	content, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+	}
+	fmt.Printf("response: %s:", string(content))
+
+	return
+}

@@ -265,7 +265,7 @@ func (hook *WebHook) processAlerts() {
 			}
 		default:
 			if len(metrics) != 0 {
-				hook.zabbixAlertSend(metrics, hook.config.zabbixSubpath)
+				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath)
 				metrics = metrics[:0]
 			} else {
 				time.Sleep(1 * time.Second)
@@ -304,4 +304,18 @@ func (hook *WebHook) zabbixAlertSend(metrics []*zabbix.AlertMetric, subpath stri
 		log.Info("successfully sent alert")
 	}
 
+}
+
+func (hook *WebHook) alertMetricsSend(metrics []*zabbix.AlertMetric, subpath string) {
+	for _, metric := range metrics {
+		// Send metric to remote server
+		log.Infof("sending to remote '%s:%d'", hook.config.ZabbixServerHost, hook.config.ZabbixServerPort)
+		z := zabbix.NewSender(hook.config.ZabbixServerHost, hook.config.ZabbixServerPort)
+		_, err := z.AlertMetricSend(metric, subpath)
+		if err != nil {
+			log.Error(err)
+		} else {
+			log.Info("successfully sent alert")
+		}
+	}
 }
