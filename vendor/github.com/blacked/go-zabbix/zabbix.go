@@ -30,19 +30,23 @@ type MailBody struct {
 
 type MailMessage struct {
 	From             string `json:"from"`
-	To               string `json:"to"`
-	Cc               string `json:"cc"`
-	Bcc              string `json:"bcc"`
+	To               []string `json:"to"`
+	Cc               []string `json:"cc"`
+	Bcc              []string `json:"bcc"`
 	Subject          string `json:"subject"`
 	Body             MailBody `json:"body"`
-	Attach           string `json:"attach"`
+	Attach           []string `json:"attach"`
+}
+
+type MailMessageType struct {
+	MsgType        MailMessage `json:"mail"`
 }
 
 type AlertMetric struct {
 	Time             string `json:"tm"`
 	Event            int    `json:"evt"`
 	AlertType        int    `json:"type"`
-	Message          MailMessage `json:"msg"`
+	MessageType      MailMessageType `json:"msg"`
 }
 
 // Metric class constructor.
@@ -56,11 +60,11 @@ func NewMetric(host, key, value string, clock ...int64) *Metric {
 }
 
 // AlertMetric class constructor.
-func NewAlertMetric(time string, event int, alerttype int, msg MailMessage) *AlertMetric {
+func NewAlertMetric(time string, event int, alerttype int, msgtype MailMessageType) *AlertMetric {
 	m := &AlertMetric{Time: time,
 		              Event: event,
 	                  AlertType: alerttype,
-	                  Message: msg}
+		              MessageType: msgtype}
 	return m
 }
 

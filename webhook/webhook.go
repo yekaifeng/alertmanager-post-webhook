@@ -170,6 +170,7 @@ func (hook *WebHook) processAlerts() {
 	var metrics []*zabbix.AlertMetric
 	var mailbody zabbix.MailBody
 	var mailmessage zabbix.MailMessage
+	var mailmsgtype zabbix.MailMessageType
 	for {
 		select {
 		case a := <-hook.channel:
@@ -250,17 +251,20 @@ func (hook *WebHook) processAlerts() {
 						"Status：" + a.Status + "\n" +
 						"Time：" + alertStartTime + "\n"}
 
+				mailto := strings.Split(hook.config.EmailTo, ",")
 				mailmessage = zabbix.MailMessage{
 					hook.config.EmailFrom,
-					hook.config.EmailTo,
-					"",
-					"",
+					mailto,
+					[]string{},
+					[]string{},
 					subject,
 					mailbody,
-					"",
+					[]string{},
 				}
+
+				mailmsgtype = zabbix.MailMessageType{mailmessage}
 				//insert alertmetrics into slice
-				metrics = append(metrics, zabbix.NewAlertMetric(alertStartTime, 1, 1, mailmessage))
+				metrics = append(metrics, zabbix.NewAlertMetric(alertStartTime, 1, 1, mailmsgtype))
 				log.Infof("metrics: %v", metrics)
 			}
 		default:
