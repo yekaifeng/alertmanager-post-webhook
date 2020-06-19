@@ -13,7 +13,6 @@ import (
 	"time"
 	"strconv"
 	"bytes"
-	"strings"
 )
 
 // Metric class.
