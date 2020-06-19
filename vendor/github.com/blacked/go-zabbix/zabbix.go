@@ -288,7 +288,7 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 		fmt.Println("Fatal error ", err.Error())
 	}
 	//Set request header
-	appid := strings.Split(verifycode, "_")[0]
+	//appid := strings.Split(verifycode, "_")[0]
 	utc_time := strconv.FormatInt(time.Now().UTC().Unix(), 10)
 	vc :=  verifycode + utc_time
 	//reqest.Header.Set("Content-Type", "application/json")
