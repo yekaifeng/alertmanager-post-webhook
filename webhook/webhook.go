@@ -274,8 +274,7 @@ func (hook *WebHook) processAlerts() {
 			}
 		default:
 			if len(metrics) != 0 {
-				t := time.Now().UTC().String()
-				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath, verifycode+t)
+				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath, verifycode)
 				metrics = metrics[:0]
 			} else {
 				time.Sleep(1 * time.Second)
