@@ -21,3 +21,7 @@ ocpPortalAddress: 10.2.42.101
 emailFrom: email@from.com
 # email to field
 emailTo: email@to.com
+# appID
+appId: xxxx
+# appKey
+appKey: xxxx

@@ -34,6 +34,8 @@ type WebHookConfig struct {
 	OcpPortalAddress     string `yaml:"ocpPortalAddress"`
 	EmailFrom            string `yaml:"emailFrom"`
 	EmailTo              string `yaml:"emailTo"`
+	AppId                string `yaml:"appId"`
+	AppKey               string `yaml:"appKey"`
 }
 
 type HookRequest struct {
@@ -85,6 +87,8 @@ func ConfigFromFile(filename string) (cfg *WebHookConfig, err error) {
 		OcpPortalAddress:     "",
 		EmailFrom:            "",
 		EmailTo:              "",
+		AppId:                "",
+		AppKey:               "",
 	}
 
 	err = yaml.Unmarshal(configFile, &config)
@@ -171,6 +175,7 @@ func (hook *WebHook) processAlerts() {
 	var mailbody zabbix.MailBody
 	var mailmessage zabbix.MailMessage
 	var mailmsgtype zabbix.MailMessageType
+	verifycode := hook.config.AppId + "_" + hook.config.AppKey + "_"
 	for {
 		select {
 		case a := <-hook.channel:
@@ -269,7 +274,8 @@ func (hook *WebHook) processAlerts() {
 			}
 		default:
 			if len(metrics) != 0 {
-				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath)
+				t := time.Now().UTC().String()
+				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath, verifycode+t)
 				metrics = metrics[:0]
 			} else {
 				time.Sleep(1 * time.Second)
@@ -310,12 +316,12 @@ func (hook *WebHook) zabbixAlertSend(metrics []*zabbix.AlertMetric, subpath stri
 
 }
 
-func (hook *WebHook) alertMetricsSend(metrics []*zabbix.AlertMetric, subpath string) {
+func (hook *WebHook) alertMetricsSend(metrics []*zabbix.AlertMetric, subpath string, verifycode string) {
 	for _, metric := range metrics {
 		// Send metric to remote server
 		log.Infof("sending to remote '%s:%d'", hook.config.ZabbixServerHost, hook.config.ZabbixServerPort)
 		z := zabbix.NewSender(hook.config.ZabbixServerHost, hook.config.ZabbixServerPort)
-		_, err := z.AlertMetricSend(metric, subpath)
+		_, err := z.AlertMetricSend(metric, subpath, verifycode)
 		if err != nil {
 			log.Error(err)
 		} else {

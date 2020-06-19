@@ -264,7 +264,7 @@ func (s *Sender) AlertSend(packet *AlertPacket, subpath string) (res []byte, err
 }
 
 // Method Sender class, send packet to zabbix.
-func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string) (res []byte, err error) {
+func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode string) (res []byte, err error) {
 
 	dataPacket, _ := json.Marshal(metric)
 
@@ -286,7 +286,10 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string) (res []byt
 		fmt.Println("Fatal error ", err.Error())
 	}
 	//Set request header
+	utc_time := strings.Split(verifycode, "_")[2]
 	reqest.Header.Set("Content-Type", "application/json")
+	reqest.Header.Add("Authorization", verifycode)
+	reqest.Header.Add("t", utc_time)
 
 	//Send request
 	resp, err := client.Do(reqest)
