@@ -13,6 +13,7 @@ import (
 	"time"
 	"strconv"
 	"bytes"
+	"strings"
 )
 
 // Metric class.
@@ -288,8 +289,8 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	}
 	//Set request header
 	appid := strings.Split(verifycode, "_")[0]
-	vc :=  verifycode + utc_time
 	utc_time := strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	vc :=  verifycode + utc_time
 	//reqest.Header.Set("Content-Type", "application/json")
 	reqest.Header.Set("Authorization", appid + ":" + getsha1(vc))
 	reqest.Header.Add("t", utc_time)
