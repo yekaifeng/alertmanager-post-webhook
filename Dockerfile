@@ -12,6 +12,9 @@ FROM alpine:latest
 RUN adduser webhook -s /bin/false -D webhook
 
 RUN mkdir -p /etc/webhook
+RUN apk add tzdata \
+&& ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+&& echo "Asia/Shanghai" > /etc/timezone
 COPY config.yaml /etc/webhook
 
 COPY --from=build /go/src/github.com/gmauleon/alertmanager-zabbix-webhook/alertmanager-zabbix-webhook /usr/bin
