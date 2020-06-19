@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"crypto/tls"
+	"crypto/sha1"
 	"time"
 	"strconv"
 	"bytes"
@@ -286,9 +287,11 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 		fmt.Println("Fatal error ", err.Error())
 	}
 	//Set request header
+	appid := strings.Split(verifycode, "_")[0]
+	vc :=  verifycode + utc_time
 	utc_time := strconv.FormatInt(time.Now().UTC().Unix(), 10)
-	reqest.Header.Set("Content-Type", "application/json")
-	reqest.Header.Add("Authorization", verifycode + utc_time)
+	//reqest.Header.Set("Content-Type", "application/json")
+	reqest.Header.Set("Authorization", appid + ":" + getsha1(vc))
 	reqest.Header.Add("t", utc_time)
 
 	//Send request
@@ -302,4 +305,12 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	fmt.Printf("response: %s:", string(content))
 
 	return
+}
+
+func getsha1(str string) (string) {
+	h := sha1.New()
+	h.Write([]byte(str))
+	bs := h.Sum(nil)
+	hashsha1 := fmt.Sprintf("%x", bs)
+	return hashsha1
 }
