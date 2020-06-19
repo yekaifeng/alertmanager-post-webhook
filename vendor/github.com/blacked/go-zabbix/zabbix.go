@@ -13,6 +13,8 @@ import (
 	"time"
 	"strconv"
 	"bytes"
+	"strings"
+	"os"
 )
 
 // Metric class.
@@ -287,8 +289,13 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 		fmt.Println("Fatal error ", err.Error())
 	}
 	//Set request header
-	//appid := strings.Split(verifycode, "_")[0]
-	utc_time := strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	appid := strings.Split(verifycode, "_")[0]
+	timezone := os.Getenv("TIMEZONE")
+    if err != nil {
+		timezone := "Asia/Shanghai"
+	}
+	location, _ := time.LoadLocation(Timezone)
+	utc_time := strconv.FormatInt(time.Now().In(location).UTC().Unix(), 10)
 	vc :=  verifycode + utc_time
 	//reqest.Header.Set("Content-Type", "application/json")
 	reqest.Header.Set("Authorization", "appId:" + getsha1(vc))
