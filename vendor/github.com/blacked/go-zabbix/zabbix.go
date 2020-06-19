@@ -294,7 +294,7 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
     if err != nil {
 		timezone := "Asia/Shanghai"
 	}
-	location, _ := time.LoadLocation(Timezone)
+	location, _ := time.LoadLocation(timezone)
 	utc_time := strconv.FormatInt(time.Now().In(location).UTC().Unix(), 10)
 	vc :=  verifycode + utc_time
 	//reqest.Header.Set("Content-Type", "application/json")
