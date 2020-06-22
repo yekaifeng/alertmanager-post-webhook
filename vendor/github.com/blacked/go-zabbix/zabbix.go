@@ -13,7 +13,7 @@ import (
 	"time"
 	"strconv"
 	"bytes"
-//	"strings"
+	"strings"
 	"os"
 )
 
@@ -294,7 +294,8 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
     if err != nil {
 		timezone = "Asia/Shanghai"
 	}
-	_, _ := time.LoadLocation(timezone)
+	location, _ := time.LoadLocation(timezone)
+	fmt.Println("Location: ", location)
 	//utc_time := strconv.FormatInt(time.Now().In(location).UTC().Unix(), 10)
 	utc_time := strconv.FormatInt(time.Now().Unix(), 10)
 	vc :=  verifycode + utc_time
