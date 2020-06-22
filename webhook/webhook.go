@@ -176,6 +176,7 @@ func (hook *WebHook) processAlerts() {
 	var mailmessage zabbix.MailMessage
 	var mailmsgtype zabbix.MailMessageType
 	verifycode := hook.config.AppId + "_" + hook.config.AppKey + "_"
+	log.Infof("verifycode: %v", verifycode)
 	for {
 		select {
 		case a := <-hook.channel:
@@ -275,6 +276,7 @@ func (hook *WebHook) processAlerts() {
 		default:
 			if len(metrics) != 0 {
 				hook.alertMetricsSend(metrics, hook.config.zabbixSubpath, verifycode)
+				log.Infof("verifycode: %v", verifycode)
 				metrics = metrics[:0]
 			} else {
 				time.Sleep(1 * time.Second)
