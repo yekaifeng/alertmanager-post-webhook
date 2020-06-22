@@ -298,10 +298,12 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	fmt.Println("Location: ", location)
 	//utc_time := strconv.FormatInt(time.Now().In(location).UTC().Unix(), 10)
 	utc_time := strconv.FormatInt(time.Now().Unix(), 10)
-	vc :=  verifycode + utc_time
+	fmt.Printf("vc before encode: %s:", verifycode + utc_time)
+	vc :=  getsha1(verifycode + utc_time)
+	fmt.Printf("vc after encode: %s:", vc)
 	//reqest.Header.Set("Content-Type", "application/json")
 	reqest.Header.Set("t", utc_time)
-	reqest.Header.Set("Authorization", appid + ":" + getsha1(vc))
+	reqest.Header.Set("Authorization", appid + ":" + vc)
 
 	//Send request
 	resp, err := client.Do(reqest)
