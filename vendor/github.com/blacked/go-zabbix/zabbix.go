@@ -301,11 +301,13 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	fmt.Printf("vc before encode: %s\n", verifycode + utc_time)
 	vc :=  getsha1(verifycode + utc_time)
 	fmt.Printf("vc after encode: %s\n", vc)
+	fmt.Printf("url: %s\n", url)
 	fmt.Printf("appid and vc: %s\n", appid + ":" + vc)
 	fmt.Printf("dataPacket: %s\n", dataPacket)
 	reqest.Header.Set("Content-Type", "application/json")
 	reqest.Header.Set("t", utc_time)
 	reqest.Header.Set("Authorization", appid + ":" + vc)
+	fmt.Printf("request: %v\n", request)
 
 	//Send request
 	resp, err := client.Do(reqest)
