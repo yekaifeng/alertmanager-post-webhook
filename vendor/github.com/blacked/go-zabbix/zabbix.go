@@ -277,7 +277,7 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	}
 	// New https client for Post
 	client := &http.Client{Transport: tp}
-	url := "https://" + s.Host + ":" + strconv.Itoa(iaddr.Port) + subpath
+	url := "https://" + s.Host + ":" + strconv.Itoa(s.Port) + subpath
 	request, err := http.NewRequest("POST", url, bytes.NewReader(dataPacket))
 	if err != nil {
 		fmt.Println("Fatal error ", err.Error())
