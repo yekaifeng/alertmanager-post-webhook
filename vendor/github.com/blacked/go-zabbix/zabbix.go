@@ -307,7 +307,7 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	reqest.Header.Set("Content-Type", "application/json")
 	reqest.Header.Set("t", utc_time)
 	reqest.Header.Set("Authorization", appid + ":" + vc)
-	fmt.Printf("request: %v\n", request)
+	fmt.Printf("request: %v\n", reqest)
 
 	//Send request
 	resp, err := client.Do(reqest)
