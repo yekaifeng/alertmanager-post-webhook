@@ -271,20 +271,14 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 
 	dataPacket, _ := json.Marshal(metric)
 
-	// Get ip and port to zabbix host
-	iaddr, err := s.getTCPAddr()
-	if err != nil {
-		return
-	}
-
 	// Set https trasport ignore certificate verification
 	tp := &http.Transport{
 		TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},
 	}
 	// New https client for Post
 	client := &http.Client{Transport: tp}
-	url := "https://" + iaddr.IP.String() + ":" + strconv.Itoa(iaddr.Port) + subpath
-	reqest, err := http.NewRequest("POST", url, bytes.NewReader(dataPacket))
+	url := "https://" + s.Host + ":" + strconv.Itoa(iaddr.Port) + subpath
+	request, err := http.NewRequest("POST", url, bytes.NewReader(dataPacket))
 	if err != nil {
 		fmt.Println("Fatal error ", err.Error())
 	}
@@ -298,19 +292,18 @@ func (s *Sender) AlertMetricSend(metric *AlertMetric, subpath string, verifycode
 	fmt.Println("Location: ", location)
 	//utc_time := strconv.FormatInt(time.Now().In(location).UTC().Unix(), 10)
 	utc_time := strconv.FormatInt(time.Now().Unix(), 10)
-	fmt.Printf("vc before encode: %s\n", verifycode + utc_time)
+	fmt.Printf("utc: %s\n", utc_time)
 	vc :=  getsha1(verifycode + utc_time)
-	fmt.Printf("vc after encode: %s\n", vc)
 	fmt.Printf("url: %s\n", url)
 	fmt.Printf("appid and vc: %s\n", appid + ":" + vc)
 	fmt.Printf("dataPacket: %s\n", dataPacket)
-	reqest.Header.Set("Content-Type", "application/json")
-	reqest.Header.Set("t", utc_time)
-	reqest.Header.Set("Authorization", appid + ":" + vc)
-	fmt.Printf("request: %v\n", reqest)
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("t", utc_time)
+	request.Header.Set("Authorization", appid + ":" + vc)
+	fmt.Printf("request: %v\n", request)
 
 	//Send request
-	resp, err := client.Do(reqest)
+	resp, err := client.Do(request)
 	defer resp.Body.Close()
 
 	content, err := ioutil.ReadAll(resp.Body)
